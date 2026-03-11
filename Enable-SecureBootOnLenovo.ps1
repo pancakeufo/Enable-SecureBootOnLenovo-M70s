@@ -23,9 +23,11 @@ https://github.com/MCSMLab/...
 $Data = gwmi -class Lenovo_BiosSetting -namespace root\wmi | Where-Object {$_.CurrentSetting.split(",",[StringSplitOptions]::RemoveEmptyEntries) -eq "SecureBoot"} | Select-Object CurrentSetting
 $Status = $Data.CurrentSetting
 
-If ( $Status -eq "SecureBoot,Disable" ) {
-    (gwmi -class Lenovo_SetBiosSetting –namespace root\wmi).SetBiosSetting("SecureBoot,Enable")
+If ( $Status -like "SecureBoot,Disable*" ) {
+    (gwmi -class Lenovo_SetBiosSetting -namespace root\wmi).SetBiosSetting("SecureBoot,Enabled")
     (gwmi -class Lenovo_SaveBiosSettings -namespace root\wmi).SaveBiosSettings()
     # Restart-Computer -Force
-    }
-Else { Exit }
+}
+Else { 
+    Write-Host "Secure Boot is already enabled."
+}
